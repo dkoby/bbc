@@ -1,0 +1,123 @@
+
+html {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 14px;
+    width: 100%;
+}
+body {
+    padding: 0;
+    margin: 0;
+
+    width: 100%;
+
+    color: black;
+    background-color: aliceblue;
+    background-image: url("../img/wrench.png");
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+a {
+    color            : #b55;
+    text-decoration  : none;
+    font-size        : 0.9em;
+    font-weight      : bold;
+}
+div {
+    margin: 2px;
+    padding: 2px;
+}
+span {
+    margin: 2px;
+    padding: 2px;
+}
+
+body > div:nth-child(4) {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+}
+
+.marginBlock {
+    margin: 2px;
+}
+.paddedBlock {
+    padding: 2px;
+}
+
+.table {
+    display: table;
+    border-spacing : 2px;
+}
+.tableRow {
+    display: table-row;
+}
+.tableCell {
+    display: table-cell;
+}
+
+.flexVertical {
+    display: flex;
+    flex-direction: column;
+}
+.flexHorizontal {
+    display: flex;
+    flex-direction: row;
+}
+.flexHorizontalV {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.silver {
+    background-color: silver;
+}
+
+/*
+ * Custom.
+ */
+.sectionName {
+    font-weight: bold;
+    background-color: aqua;
+}
+.paramName {
+    font-weight: bold;
+    background-color: cadetblue;
+    padding: 4px;
+}
+.paramNameCalc {
+    font-weight: bold;
+    background-color: darkseagreen;
+    padding: 4px;
+}
+.alert {
+    background-color: orange;
+}
+.hubImage {
+    width: 20em;
+    max-width: 20em;
+}
+.toolBar {
+    padding: 2px;
+    min-height: 1em;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.toolBarButton {
+    border-radius: 2px;
+    padding: 2px;
+    cursor: pointer;
+    margin: 2px 4px 2px 4px;
+}
+.toolBarButton:hover {
+    background-color: gray;
+}
+.cinfo {
+    font-size: 0.8em;
+    color: grey;
+
+}
+
