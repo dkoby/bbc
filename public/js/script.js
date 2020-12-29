@@ -553,7 +553,7 @@ var BBC = function() {
     ;
 
 
-    new BlockElement("div", ["cinfo"], document.body, "v.1 (c) 2020-2021 Dmitrij Kobilin.");
+    new BlockElement("div", ["cinfo"], document.body, "v." + this.version + " (c) 2020-2021 Dmitrij Kobilin.");
 
     this.loadSettings();
     this.calc();
