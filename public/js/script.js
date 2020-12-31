@@ -602,8 +602,10 @@ BBC.prototype.saveSettings = function() {
         });
     });
     settings.chainStay = this.block.frame.chainStay.value;
-    settings.frontSprocketIndex = this.block.gear.frontSprocket.element.selectedIndex;
-    settings.rearSprocketIndex = this.block.gear.rearSprocket.element.selectedIndex;
+    settings.gear = {};
+    console.log("INDEX", this.block.gear.frontSprocket.selectedIndex);
+    settings.gear.frontSprocketIndex = this.block.gear.frontSprocket.selectedIndex;
+    settings.gear.rearSprocketIndex = this.block.gear.rearSprocket.selectedIndex;
 
     let data = JSON.stringify(settings);
     localStorage.setItem("BBC", data);
@@ -674,8 +676,10 @@ BBC.prototype.loadSettings = function(settings) {
                 settings.chainStay = 400;
             if (settings.gear === undefined)
                 settings.gear = {};
-            settings.gear.frontSprocketIndex = this.frontSprockets.findIndex((sprocket) => {return sprocket.tooth == 46;});
-            settings.gear.rearSprocketIndex = this.rearSprockets.findIndex((sprocket) => {return sprocket.tooth == 16;});
+            if (settings.gear.frontSprocketIndex === undefined)
+                settings.gear.frontSprocketIndex = this.frontSprockets.findIndex((sprocket) => {return sprocket.tooth == 46;});
+            if (settings.gear.rearSprocketIndex === undefined)
+                settings.gear.rearSprocketIndex = this.rearSprockets.findIndex((sprocket) => {return sprocket.tooth == 16;});
         }
     }
 
@@ -724,9 +728,9 @@ BBC.prototype.loadSettings = function(settings) {
     if (settings.gear !== undefined)
     {
         if (settings.gear.frontSprocketIndex !== undefined)
-            this.block.gear.frontSprocket.element.selectedIndex = settings.gear.frontSprocketIndex;
+            this.block.gear.frontSprocket.selectedIndex = settings.gear.frontSprocketIndex;
         if (settings.gear.rearSprocketIndex !== undefined)
-            this.block.gear.rearSprocket.element.selectedIndex = settings.gear.rearSprocketIndex;
+            this.block.gear.rearSprocket.selectedIndex = settings.gear.rearSprocketIndex;
     }
 }
 BBC.prototype.loadSettingsFromFile = function() {
