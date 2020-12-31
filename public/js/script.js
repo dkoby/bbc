@@ -763,6 +763,7 @@ BBC.prototype.loadSettingsFromFile = function() {
             }
 
             this.loadSettings(data);
+            this.calc();
         });
         reader.readAsText(ev.target.files[0]);
     });
