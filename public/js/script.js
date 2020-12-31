@@ -36,7 +36,7 @@ var BBC = function() {
         );
     }
     this.frontSprockets = [];
-    for (let i = 28; i <= 60; i++)
+    for (let i = 28; i <= 120; i++)
         this.frontSprockets.push({display: i + "T", tooth: i,});
     this.rearSprockets = [];
     for (let i = 12; i <= 24; i++)
