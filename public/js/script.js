@@ -332,7 +332,7 @@ var BBC = function() {
 
     new BlockElement("div", ["flexVertical"], document.body)
         .mkChild("div", ["toolBar", ])
-            .mkChild("div", ["div"])
+            .mkChild("div")
                 .mkChildExt({
                     tag: "img",
                     classList: ["toolBarButton"],
@@ -354,6 +354,27 @@ var BBC = function() {
                     events: {
                         click: () => {this.saveSettingsToFile();},
                     },
+                })
+            .getParent()
+            .mkSibling("div", ["flexHorizontal"])
+                .mkChild("div", [], "Description")
+                .mkSiblingExt({
+                    tag: "input",
+                    attrs: {
+                        type: "text",
+                        maxlength: 24,
+                    },
+                    style: {
+                        width: "20em",
+                    },
+                    events: {
+                        change: (ev) => {
+                            this.saveSettings();
+                        },
+                    },
+                })
+                .apply((block) => {
+                    this.block.description = block;
                 })
             .getParent()
         .getParent()
@@ -579,6 +600,7 @@ BBC.prototype.saveSettings = function() {
 
     settings.version = this.settingsVersion;
 
+    settings.description = this.block.description.value;
     settings.wheel = {};
     ["rear", "front"].forEach((type) => {
         settings.wheel[type] = {};
@@ -732,6 +754,9 @@ BBC.prototype.loadSettings = function(settings) {
         if (settings.gear.rearSprocketIndex !== undefined)
             this.block.gear.rearSprocket.selectedIndex = settings.gear.rearSprocketIndex;
     }
+
+    if (settings.description !== undefined)
+        this.block.description.value = settings.description;
 }
 BBC.prototype.loadSettingsFromFile = function() {
     let fileInput = document.createElement("input");
