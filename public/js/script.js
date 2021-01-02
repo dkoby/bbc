@@ -362,7 +362,7 @@ var BBC = function() {
                     tag: "input",
                     attrs: {
                         type: "text",
-                        maxlength: 24,
+                        maxlength: 100,
                     },
                     style: {
                         width: "20em",
@@ -571,6 +571,25 @@ var BBC = function() {
         makeHub.call(this, block, "front");
     })
     .getParent() /* Top element. */
+    .mkChild("div", ["tableRow"])
+    .mkChild("div", ["tableCell"])
+    .mkChild("div", ["flexVertical"])
+        .mkChild("div", ["sectionName"], "Other")
+        .mkSibling("div", [], "Comment")
+        .mkSiblingExt({
+            tag: "textarea", 
+            attrs: {
+                rows: 12,
+            },
+            events: {
+                change: () => {
+                    this.saveSettings();
+                },
+            },
+        })
+        .apply((block) => {
+            this.block.comment = block;
+        })
     ;
 
 
@@ -601,6 +620,7 @@ BBC.prototype.saveSettings = function() {
     settings.version = this.settingsVersion;
 
     settings.description = this.block.description.value;
+    settings.comment = this.block.comment.value;
     settings.wheel = {};
     ["rear", "front"].forEach((type) => {
         settings.wheel[type] = {};
@@ -757,6 +777,8 @@ BBC.prototype.loadSettings = function(settings) {
 
     if (settings.description !== undefined)
         this.block.description.value = settings.description;
+    if (settings.comment !== undefined)
+        this.block.comment.value = settings.comment;
 }
 BBC.prototype.loadSettingsFromFile = function() {
     let fileInput = document.createElement("input");
@@ -788,6 +810,7 @@ BBC.prototype.loadSettingsFromFile = function() {
             }
 
             this.loadSettings(data);
+            this.saveSettings();
             this.calc();
         });
         reader.readAsText(ev.target.files[0]);
