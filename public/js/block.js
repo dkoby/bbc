@@ -75,7 +75,7 @@ BlockElement.prototype.mapChilds = function(array, iterator) {
         array.forEach(iterator.bind(this, this));
     return this;
 }
-BlockElement.prototype.mapNchilds = function(n, iterator) {
+BlockElement.prototype.mapChildsN = function(n, iterator) {
     if (n > 0 && iterator)
     {
         for (let index = 0; index < n; index++)

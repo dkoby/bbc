@@ -85,7 +85,7 @@ var BBC = function() {
             },
         })
         .mkSibling("div", ["table"])
-            .mapChilds(["ERD", "WIDTH", "HOLES", "CROSSES", "DHUBHOLE"], (block, param) => {
+            .mapChilds(["ERD", "WIDTH", "HOLES", "CROSSES", "DHUBHOLE", "RIMHOLEOFS"], (block, param) => {
                 let paramName;
                 let title;
                 let display;
@@ -97,6 +97,7 @@ var BBC = function() {
                     case "HOLES"   : paramName = "holes";    display = "Holes";      title = "Number of holes in rim/hub"; break;
                     case "CROSSES" : paramName = "crosses";  display = "Lacing pat.";title = "Lacing pattern (crosses)";   break;
                     case "DHUBHOLE": paramName = "dhole"; display = "Hole diam." ;title = "Hub hole diameter";   break;
+                    case "RIMHOLEOFS": paramName = "rimhofs"; display = "Rim hole ofs." ;title = "Rim hole offset from center";   break;
                 }
 
                 block
@@ -140,7 +141,7 @@ var BBC = function() {
                                     type: "text",
                                 },
                                 style: {
-                                    width: (param == "WIDTH" || param == "ERD" || param == "DHUBHOLE") ? "5em" : "4em",
+                                    width: (param == "WIDTH" || param == "ERD" || param == "DHUBHOLE" || param == "RIMHOLEOFS") ? "5em" : "4em",
                                 },
                                 events: [
                                     ["click", "keyup"],
@@ -157,6 +158,11 @@ var BBC = function() {
                                             this.block.wheel[type].hub[paramName].value = ev.target.value;
                                         else
                                             this.block.wheel[type][paramName].value = ev.target.value;
+
+                                        this.adjustValues({
+                                            param: param,
+                                            type: type,
+                                        });
                                         this.saveSettings();
                                         this.calc();
                                     }
@@ -170,7 +176,7 @@ var BBC = function() {
                                     this.block.wheel[type][paramName] = block;
                                 }
 
-                                if (param == "WIDTH" || param == "ERD" || param == "DHUBHOLE")
+                                if (param == "WIDTH" || param == "ERD" || param == "DHUBHOLE" || param == "RIMHOLEOFS")
                                     block.getParent().mkSibling("div", ["tableCell"], "mm");
                             })
                             ;
@@ -330,7 +336,7 @@ var BBC = function() {
         ;
     }
 
-    new BlockElement("div", ["flexVertical"], document.body)
+    new BlockElement("div", ["flexVertical", "content"], document.body)
         .mkChild("div", ["toolBar", ])
             .mkChild("div")
                 .mkChildExt({
@@ -562,6 +568,20 @@ var BBC = function() {
             ;
         }
     })
+        .mkChild("div", ["tableRow"])
+            .mkChild("div", ["tableCell"])
+                .mkChildExt({
+                    tag: "a",
+                    classList: [],
+                    attrs: {
+                        "href": "fg.html",
+                    },
+                    innerHTML: "Extended",
+                })
+            .getParent()
+        .getParent()
+    .getParent()
+
     .getParent() /* FlexVertical. */
     .getParent(2) /* Sections table, row. */
     /*
@@ -593,7 +613,7 @@ var BBC = function() {
     ;
 
 
-    new BlockElement("div", ["cinfo"], document.body, "v." + this.version + " (c) 2020-2021 Dmitrij Kobilin.");
+    new BlockElement("footer", [], document.body, "v." + this.version + " (c) 2020-2021 Dmitrij Kobilin.");
 
     this.loadSettings();
     this.calc();
@@ -602,16 +622,29 @@ var BBC = function() {
 BBC.prototype.adjustValues = function(opt) {
     if (opt.param !== undefined)
     {
-        if (opt.param == "faxle")
+        let side = [];
+        if (opt.side === undefined)
         {
-            let hubWidth = this.block.wheel[opt.type].hub.width.value;
-            this.block.wheel[opt.type].hub.side[opt.side].fcenter.value =
-                hubWidth / 2 - this.block.wheel[opt.type].hub.side[opt.side].faxle.value;
-        } else if (opt.param == "fcenter") {
-            let hubWidth = this.block.wheel[opt.type].hub.width.value;
-            this.block.wheel[opt.type].hub.side[opt.side].faxle.value =
-                hubWidth / 2 - this.block.wheel[opt.type].hub.side[opt.side].fcenter.value;
+            side.push("left");
+            side.push("right");
+        } else {
+            side.push(opt.side);
         }
+
+        side.forEach((side) => {
+            if (opt.param == "faxle" || opt.param == "WIDTH")
+            {
+                let hubWidth = this.block.wheel[opt.type].hub.width.value;
+                this.block.wheel[opt.type].hub.side[side].fcenter.value =
+                    hubWidth / 2 - this.block.wheel[opt.type].hub.side[side].faxle.value;
+            }
+            if (opt.param == "fcenter" || opt.param == "WIDTH")
+            {
+                let hubWidth = this.block.wheel[opt.type].hub.width.value;
+                this.block.wheel[opt.type].hub.side[side].faxle.value =
+                    hubWidth / 2 - this.block.wheel[opt.type].hub.side[side].fcenter.value;
+            }
+        });
     }
 }
 BBC.prototype.saveSettings = function() {
@@ -632,6 +665,8 @@ BBC.prototype.saveSettings = function() {
         settings.wheel[type].holesIndex   = this.block.wheel[type].holes.selectedIndex;
         settings.wheel[type].crossesIndex = this.block.wheel[type].crosses.selectedIndex;
 
+        settings.wheel[type].rimhofs = this.block.wheel[type].rimhofs.value;
+
         settings.wheel[type].hub = {}
         settings.wheel[type].hub.width = this.block.wheel[type].hub.width.value;
         settings.wheel[type].hub.dhole = this.block.wheel[type].hub.dhole.value;
@@ -645,7 +680,6 @@ BBC.prototype.saveSettings = function() {
     });
     settings.chainStay = this.block.frame.chainStay.value;
     settings.gear = {};
-    console.log("INDEX", this.block.gear.frontSprocket.selectedIndex);
     settings.gear.frontSprocketIndex = this.block.gear.frontSprocket.selectedIndex;
     settings.gear.rearSprocketIndex = this.block.gear.rearSprocket.selectedIndex;
 
@@ -689,6 +723,8 @@ BBC.prototype.loadSettings = function(settings) {
                     settings.wheel[type].tireTypeIndex = 0;
                 if (settings.wheel[type].erd === undefined)
                     settings.wheel[type].erd = 550;
+                if (settings.wheel[type].rimhofs === undefined)
+                    settings.wheel[type].rimhofs = 0;
                 if (settings.wheel[type].holesIndex === undefined)
                     settings.wheel[type].holesIndex = this.holes.findIndex((holes) => {return holes.holes == 32;}); 
                 if (settings.wheel[type].crossesIndex === undefined)
@@ -736,6 +772,8 @@ BBC.prototype.loadSettings = function(settings) {
                     this.block.wheel[type].tireType.element.selectedIndex = settings.wheel[type].tireTypeIndex;
                 if (settings.wheel[type].erd !== undefined)
                     this.block.wheel[type].erd.value = settings.wheel[type].erd;
+                if (settings.wheel[type].rimhofs !== undefined)
+                    this.block.wheel[type].rimhofs.value = settings.wheel[type].rimhofs;
 
                 if (settings.wheel[type].holesIndex !== undefined)
                     this.block.wheel[type].holes.selectedIndex = settings.wheel[type].holesIndex;
@@ -817,13 +855,6 @@ BBC.prototype.loadSettingsFromFile = function() {
     });
     fileInput.click();
 }
-BBC.prototype.sprocketRadius = function(tooth) {
-    /* Inches. */
-    return (1.0 / 2) / 2 / Math.sin(Math.PI / tooth);
-}
-BBC.prototype.round = function(num, r) {
-    return Math.round(num * Math.pow(10, r)) / Math.pow(10, r);
-}
 BBC.prototype.calc = function(settings) {
     let wheel = {};
     ["rear", "front"].forEach((type) => {
@@ -844,20 +875,11 @@ BBC.prototype.calc = function(settings) {
     let frontSprocketTooth = this.frontSprockets[this.block.gear.frontSprocket.element.selectedIndex].tooth;
     let rearSprocketTooth = this.rearSprockets[this.block.gear.rearSprocket.element.selectedIndex].tooth;
     let gearRatio = frontSprocketTooth / rearSprocketTooth;
-    this.block.fg.ratio.innerHTML = this.round(gearRatio, 2);
+    this.block.fg.ratio.innerHTML = Calc.prototype.round(gearRatio, 2);
     /*
      * Skid patches.
      */
-    let cogDivider = rearSprocketTooth;
-    while (cogDivider > 1) {
-        if ((rearSprocketTooth  % cogDivider) == 0 &&
-            (frontSprocketTooth % cogDivider) == 0
-        ) {
-            break;
-        }
-        cogDivider--;
-    }
-    let skidPatches = rearSprocketTooth / cogDivider;
+    let skidPatches = Calc.prototype.skidPatches(frontSprocketTooth, rearSprocketTooth)
     this.block.fg.skidPatches.innerHTML = skidPatches;
     if (skidPatches < 5)
         this.block.fg.skidPatches.element.classList.add("alert");
@@ -870,23 +892,16 @@ BBC.prototype.calc = function(settings) {
         let meters = Math.PI * wheel.rear.diameter / 1000 * gearRatio;
         Object.keys(this.block.fg.cadence).forEach((cadence) => {
             let speedkmh = cadence * meters / 1000 * 60;
-            this.block.fg.cadence[cadence].innerHTML = this.round(speedkmh, 2);
+            this.block.fg.cadence[cadence].innerHTML = Calc.prototype.round(speedkmh, 2);
         });
     }
     /*
      * Chainlength
      */
     {
-        let chainstay = this.block.frame.chainStay.value / 10.0 / 2.54; /* inches */
-        let r1 = this.sprocketRadius(rearSprocketTooth);
-        let r2 = this.sprocketRadius(frontSprocketTooth);
-
-        let length = 0;
-        length += 2 * Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(chainstay, 2));
-        length += 2 * Math.PI * r1 / 2;
-        length += 2 * Math.PI * r2 / 2;
-
-        this.block.fg.chainlength.innerHTML = this.round(length * 2, 1);
+        this.block.fg.chainlength.innerHTML = Calc.prototype.round(
+                Calc.prototype.chainLength(frontSprocketTooth, rearSprocketTooth, this.block.frame.chainStay.value)
+                , 1);
     }
     /*
      * Spoke length.
@@ -900,10 +915,11 @@ BBC.prototype.calc = function(settings) {
             let holeN = spokeAngle / (360 / (holes / 2));
             let ERD      = this.block.wheel[type].erd.value;
             let holeDiameter = this.block.wheel[type].hub.dhole.value;
+            let rimhofs      = this.block.wheel[type].rimhofs.value;
 
             this.block.wheel[type].spokeAngle.innerHTML = spokeAngle + "&#x00B0";
             this.block.wheel[type].spokeAngle.mutate({
-                attrs: {title: this.round(holeN, 2) + " hole"}
+                attrs: {title: Calc.prototype.round(holeN, 2) + " hole"}
             });
 
             ["left", "right"].forEach((side) => {
@@ -914,10 +930,10 @@ BBC.prototype.calc = function(settings) {
                 {
                     let length;
 
-                    length  = Math.sqrt(Math.pow(ERD / 2 - flangeRadius, 2) + Math.pow(flangeCenter, 2));
+                    length  = Math.sqrt(Math.pow(ERD / 2 - flangeRadius, 2) + Math.pow(flangeCenter - rimhofs, 2));
                     length -= holeDiameter / 2;
 
-                    this.block.wheel[type].hub.side[side].spokeLength.innerHTML = this.round(length, 1);
+                    this.block.wheel[type].hub.side[side].spokeLength.innerHTML = Calc.prototype.round(length, 1);
                 } else {
                     let lengthCenter = Math.sqrt(
                         Math.pow(ERD / 2 - Math.cos(spokeAngleRad) * flangeRadius, 2) +
@@ -925,10 +941,10 @@ BBC.prototype.calc = function(settings) {
                     );
                     let length;
 
-                    length  = Math.sqrt(Math.pow(flangeCenter, 2) + Math.pow(lengthCenter, 2));
+                    length  = Math.sqrt(Math.pow(lengthCenter, 2) + Math.pow(flangeCenter - rimhofs, 2));
                     length -= holeDiameter / 2;
 
-                    this.block.wheel[type].hub.side[side].spokeLength.innerHTML = this.round(length, 1);
+                    this.block.wheel[type].hub.side[side].spokeLength.innerHTML = Calc.prototype.round(length, 1);
                 }
 
             });

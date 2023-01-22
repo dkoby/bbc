@@ -33,10 +33,13 @@ span {
     padding: 2px;
 }
 
-body > div:nth-child(4) {
+body > .content {
     border-width: 1px;
     border-style: solid;
     border-color: black;
+
+    overflow-x: scroll;
+    max-width : 90vw;
 }
 
 .marginBlock {
@@ -73,6 +76,9 @@ body > div:nth-child(4) {
 .silver {
     background-color: silver;
 }
+.displayNone {
+    display: none;
+}
 
 /*
  * Custom.
@@ -85,11 +91,13 @@ body > div:nth-child(4) {
     font-weight: bold;
     background-color: cadetblue;
     padding: 4px;
+    white-space: nowrap;
 }
 .paramNameCalc {
     font-weight: bold;
     background-color: darkseagreen;
     padding: 4px;
+    white-space: nowrap;
 }
 .alert {
     background-color: orange;
@@ -115,9 +123,9 @@ body > div:nth-child(4) {
 .toolBarButton:hover {
     background-color: gray;
 }
-.cinfo {
+footer {
+    margin: 4px;
     font-size: 0.8em;
     color: grey;
-
 }
 
